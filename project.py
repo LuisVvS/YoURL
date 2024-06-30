@@ -107,7 +107,7 @@ def gen(g):
     return genre_tag["content"]
 
 def likes(author):
-    api_key = "AIzaSyD5GiWNf2zZSpnbB9usmn6U_wIdSVN2n0U"
+    api_key = ""
     
     youtube = build(
         "youtube",
