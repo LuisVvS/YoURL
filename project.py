@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 from tabulate import tabulate
 from colorama import init, Fore, Style
+from googleapiclient.discovery import build
 
 init()
 
@@ -21,7 +22,9 @@ def main():
         des = description(soup)
         aut = author(soup)
         dat = date(soup)
-
+        genre = gen(soup)
+        verif(soup)
+        likes(aut)
         if(isfamily(soup) == "true"):
             isf = "yes"
         else:
@@ -33,9 +36,11 @@ def main():
         ["Date of the Video",dat], 
         ["Description",des],
         ["Is Family Frind? ",isf],
+        ["Genre",genre ]
             ]
     
     print(tabulate(data, headers=[Fore.GREEN + Style.BRIGHT + "About the Video" + Style.RESET_ALL, Fore.RED + Style.BRIGHT + "Values" + Style.RESET_ALL], tablefmt="heavy_grid"))
+
 #supported links
 #https://www.youtube.com/watch?v=iQeBYPJWtak
 #http://youtu.be/cCnrX1w5luM
@@ -85,26 +90,46 @@ def description(d):
     return des_tag["content"]
 
 def date(dat):
-    #pra ver como é o html geral, muito util para proximas implementações
-    #teste = dat.find("div")
-
     date_tag = dat.find("meta", itemprop="datePublished")
-    return date_tag["content"]
-    #print(teste.prettify())
+    date = date_tag["content"].split("T")
+    return date[0]
 
 def isfamily(f):
     tag_family = f.find("meta", itemprop="isFamilyFriendly")
     return tag_family["content"]
 
+def gen(g):
+    #pra ver como é o html geral, muito util para proximas implementações
+    #teste = g.find("div")
+    #print(teste.prettify())
+
+    genre_tag = g.find("meta", itemprop="genre")
+    return genre_tag["content"]
+
+def likes(author):
+    api_key = "AIzaSyD5GiWNf2zZSpnbB9usmn6U_wIdSVN2n0U"
+    
+    youtube = build(
+        "youtube",
+        "v3",
+        developerKey=api_key
+    ) 
+
+    request = youtube.channels().list(
+        part = "statistics",
+        forUserName = "kksaiko"
+    )
+    response = request.execute()
+    print(response) 
+
+def verif(ver): 
+    ...
 if __name__=="__main__":
     main()
 
 
-
-#aprimorar a data do video.
-#colocar genero do video.
-#decidir se continuo ou não com a descrição.
-#estilizar o output que o usuario vai receber.
+#saber melhor como funciona a API do youtube
+#tentar pegar o ID para utilizar no request para pegar as estatisticas do canal do youtube(caso não dê pelo nome)
 #melhorar a saida caso ele não ache o titulo ou outro topico.
 #talvez implementar a quantidade de likes que o video tem
 #Implementar se o canal é verificado ou não
