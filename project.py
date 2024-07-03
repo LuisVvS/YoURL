@@ -176,7 +176,6 @@ def data(name):
 if __name__=="__main__":
     main()
 
-#antes de dar qualquer commit, preciso saber esconder a chave API que eu tenho
 #talvez implementar a quantidade de likes que o video tem
 #Implementar se o canal é verificado ou não
 
