@@ -4,42 +4,53 @@ from bs4 import BeautifulSoup
 from tabulate import tabulate
 from colorama import init, Fore, Style
 from googleapiclient.discovery import build
+import json
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 init()
 
 def main():
     url = verify(input("Put the link here: ").strip())
     if not url :
-        print("Não é um link valido")
+        print("Invalid")
     else:
-        print("Link valido")
-
         page = requests.get(url)
         html_content = page.content.decode('utf-8')
         soup = BeautifulSoup(html_content, "html.parser")
+
+        
 
         ti = title(soup)
         des = description(soup)
         aut = author(soup)
         dat = date(soup)
         genre = gen(soup)
-        verif(soup)
-        likes(aut)
+
+        #get the subscribers of a channel
+        channel_ID = data(aut)
+        subs = subscriber(channel_ID)
+        like = likes(aut)
         if(isfamily(soup) == "true"):
             isf = "yes"
         else:
             isf = "no"
 
-    data = [
+    data_you = [
         ["Name Of Channel", aut],
         ["Title",ti], 
         ["Date of the Video",dat], 
         ["Description",des],
         ["Is Family Frind? ",isf],
-        ["Genre",genre ]
+        ["Genre",genre ],
+        ["Subscribers",subs]
+        # ["Likes",like]
             ]
-    
-    print(tabulate(data, headers=[Fore.GREEN + Style.BRIGHT + "About the Video" + Style.RESET_ALL, Fore.RED + Style.BRIGHT + "Values" + Style.RESET_ALL], tablefmt="heavy_grid"))
+
+    print(tabulate(data_you, headers=[Fore.GREEN + Style.BRIGHT + "About the Video" + Style.RESET_ALL, Fore.RED + Style.BRIGHT + "Values" + Style.RESET_ALL], tablefmt="heavy_grid"))
+    print(like) 
 
 #supported links
 #https://www.youtube.com/watch?v=iQeBYPJWtak
@@ -84,7 +95,6 @@ def author(a):
     author_tag = container.find("link", itemprop="name")
     return author_tag["content"]
 
-
 def description(d):
     des_tag = d.find("meta", itemprop="description")
     return des_tag["content"]
@@ -100,14 +110,14 @@ def isfamily(f):
 
 def gen(g):
     #pra ver como é o html geral, muito util para proximas implementações
-    #teste = g.find("div")
-    #print(teste.prettify())
+    # teste = g.find("div")
+    # print(teste.prettify())
 
     genre_tag = g.find("meta", itemprop="genre")
     return genre_tag["content"]
 
-def likes(author):
-    api_key = ""
+def subscriber(channel):
+    api_key = os.getenv("API_KEY")
     
     youtube = build(
         "youtube",
@@ -117,20 +127,56 @@ def likes(author):
 
     request = youtube.channels().list(
         part = "statistics",
-        forUserName = "kksaiko"
+        id = channel 
     )
     response = request.execute()
-    print(response) 
+    
+    subs = int(response["items"][0]["statistics"]["subscriberCount"])
+    return  f"{subs:,}" 
 
-def verif(ver): 
+def likes(name):
+    string_format = f"https://www.googleapis.com/youtube/v3/search?&q={name.replace(" ", "%20")}&key=AIzaSyD5GiWNf2zZSpnbB9usmn6U_wIdSVN2n0U"
+    age = requests.get(string_format)
+    data = age.json()
+    cha = data["items"][0]["id"]["channelId"]
+
+    api_key = os.getenv("API_KEY")
+
+    youtube = build(
+        "youtube",
+        "v3",
+        developerKey=api_key
+    ) 
+
+    request = youtube.channels().list(
+        part = "statistics",
+        id = cha 
+    )
+    response = request.execute()
+    
+    likes = response
+    return likes
+
+def deslikes():
     ...
+
+def subtitle():
+    ...
+
+def monetized():
+    ...
+
+def data(name):
+    string_format = f"https://www.googleapis.com/youtube/v3/search?&q={name.replace(" ", "%20")}&key=AIzaSyD5GiWNf2zZSpnbB9usmn6U_wIdSVN2n0U"
+    age = requests.get(string_format)
+    data = age.json()
+    id_channel = data["items"][0]["id"]["channelId"]
+    return id_channel
+
 if __name__=="__main__":
     main()
 
-
-#saber melhor como funciona a API do youtube
-#tentar pegar o ID para utilizar no request para pegar as estatisticas do canal do youtube(caso não dê pelo nome)
-#melhorar a saida caso ele não ache o titulo ou outro topico.
+#antes de dar qualquer commit, preciso saber esconder a chave API que eu tenho
 #talvez implementar a quantidade de likes que o video tem
 #Implementar se o canal é verificado ou não
 
