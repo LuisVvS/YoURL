@@ -44,14 +44,13 @@ def main():
         ["Date of the Video",dat], 
         ["Description",des],
         ["Is Family Frind? ",isf],
-        ["Genre",genre ],
+        ["Genre",genre],
         ["Subscribers",subs]
         # ["Likes",like]
             ]
 
     print(tabulate(data_you, headers=[Fore.GREEN + Style.BRIGHT + "About the Video" + Style.RESET_ALL, Fore.RED + Style.BRIGHT + "Values" + Style.RESET_ALL], tablefmt="heavy_grid"))
     print(like) 
-
 #supported links
 #https://www.youtube.com/watch?v=iQeBYPJWtak
 #http://youtu.be/cCnrX1w5luM
@@ -117,20 +116,21 @@ def gen(g):
     return genre_tag["content"]
 
 def subscriber(channel):
+    #pego a api_KEY
     api_key = os.getenv("API_KEY")
     
     youtube = build(
         "youtube",
         "v3",
         developerKey=api_key
-    ) 
-
+    )    
+    #busco as estatisticas do canal
     request = youtube.channels().list(
         part = "statistics",
         id = channel 
     )
     response = request.execute()
-    
+    #vou atras do numero de inscritos 
     subs = int(response["items"][0]["statistics"]["subscriberCount"])
     return  f"{subs:,}" 
 
@@ -153,9 +153,8 @@ def likes(name):
         id = cha 
     )
     response = request.execute()
-    
-    likes = response
-    return likes
+
+    return response
 
 def deslikes():
     ...
@@ -165,17 +164,21 @@ def subtitle():
 
 def monetized():
     ...
-
+    
 def data(name):
+    # pesquiso pelo google api com o nome do canal
     string_format = f"https://www.googleapis.com/youtube/v3/search?&q={name.replace(" ", "%20")}&key=AIzaSyD5GiWNf2zZSpnbB9usmn6U_wIdSVN2n0U"
     age = requests.get(string_format)
     data = age.json()
-    id_channel = data["items"][0]["id"]["channelId"]
-    return id_channel
+    # busco no arquibo json o ID do canal
+    id_channel = data["items"]
+    for i in id_channel:
+            return i["id"]["channelId"]
 
 if __name__=="__main__":
     main()
 
+# não consegui pegar o ID desse video https://www.youtube.com/watch?v=8gDZBfs9Yv4&t=2s
 #talvez implementar a quantidade de likes que o video tem
 #Implementar se o canal é verificado ou não
 
