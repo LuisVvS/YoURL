@@ -135,7 +135,7 @@ def subscriber(channel):
     return  f"{subs:,}" 
 
 def likes(name):
-    string_format = f"https://www.googleapis.com/youtube/v3/search?&q={name.replace(" ", "%20")}&key=AIzaSyD5GiWNf2zZSpnbB9usmn6U_wIdSVN2n0U"
+    string_format = f"https://www.googleapis.com/youtube/v3/search?&q={name.replace(" ", "%20")}&key={os.getenv("API_KEY")}"
     age = requests.get(string_format)
     data = age.json()
     cha = data["items"][0]["id"]["channelId"]
@@ -167,7 +167,7 @@ def monetized():
     
 def data(name):
     # pesquiso pelo google api com o nome do canal
-    string_format = f"https://www.googleapis.com/youtube/v3/search?&q={name.replace(" ", "%20")}&key=AIzaSyD5GiWNf2zZSpnbB9usmn6U_wIdSVN2n0U"
+    string_format = f"https://www.googleapis.com/youtube/v3/search?&q={name.replace(" ", "%20")}&key={os.getenv("API_KEY")}"
     age = requests.get(string_format)
     data = age.json()
     # busco no arquibo json o ID do canal
