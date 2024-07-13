@@ -24,7 +24,7 @@ def main():
         
 
         ti = title(soup)
-        des = description(soup)
+        # des = description(soup)
         aut = author(soup)
         dat = date(soup)
         genre = gen(soup)
@@ -32,7 +32,10 @@ def main():
         #get the subscribers of a channel
         channel_ID = data(aut)
         subs = subscriber(channel_ID)
-        like = likes(aut, channel_ID)
+        like = likes(soup)
+        view = Views(soup)
+        vratio = ViewRatio(subs,view)
+        lratio = LikeRatio(view,like)
         if(isfamily(soup) == "true"):
             isf = "yes"
         else:
@@ -42,15 +45,16 @@ def main():
             ["Name Of Channel", aut],
             ["Title",ti], 
             ["Date of the Video",dat], 
-            ["Description",des],
+            # ["Description",des],
             ["Is Family Frind? ",isf],
             ["Genre",genre],
-            ["Subscribers",subs]
-            # ["Likes",like]
+            ["Subscribers",f"{subs:,}"],
+            ["Likes",f"{like:,}"],
+            ["View Ratio", vratio],
+            ["Like Ratio", lratio]
                 ]
 
         print(tabulate(data_you, headers=[Fore.GREEN + Style.BRIGHT + "About the Video" + Style.RESET_ALL, Fore.RED + Style.BRIGHT + "Values" + Style.RESET_ALL], tablefmt="heavy_grid"))
-        print(like)
 
 #supported links
 #https://www.youtube.com/watch?v=iQeBYPJWtak
@@ -95,9 +99,9 @@ def author(a):
     author_tag = container.find("link", itemprop="name")
     return author_tag["content"]
 
-def description(d):
-    des_tag = d.find("meta", itemprop="description")
-    return des_tag["content"]
+# def description(d):
+#     des_tag = d.find("meta", itemprop="description")
+#     return des_tag["content"]
 
 def date(dat):
     date_tag = dat.find("meta", itemprop="datePublished")
@@ -133,25 +137,16 @@ def subscriber(channel):
     response = request.execute()
     #vou atras do numero de inscritos 
     subs = int(response["items"][0]["statistics"]["subscriberCount"])
-    return  f"{subs:,}" 
+    return subs 
 
-def likes(name, dat):
-    try:
-        #pego o request do http que eu pedi
-        string_format = f"https://www.googleapis.com/youtube/v3/search?&q={name.replace(" ", "%20")}&key={os.getenv("API_KEY")}"
-        age = requests.get(string_format)
-        data = age.json()
-        index = 0 
-        while(True):
-            #pego o Id do video para pegar os likes e deslikes
-            if data["items"][index]["id"]["kind"] == "youtube#video":
-                    vid =  data["items"][index]["id"]["videoId"]
-                    break
-            else:
-                index+=1 
-    except(KeyError):
-        None
-    #pego a API
+def likes(url):
+
+    #pego o id do video do youtube pela url
+    video_id = url.find("meta", itemprop="identifier")
+    vid = video_id["content"]
+
+
+    # pego a API
     api_key = os.getenv("API_KEY")
     
     #contruo um objeto, utilizo o youtube e o v3, mesmos parametros do string_format luis, e a chave da API
@@ -171,15 +166,46 @@ def likes(name, dat):
     response = request.execute()
 
     #retorno essa request
-    return response["items"][0]
+    like = int(response["items"][0]["statistics"]["likeCount"])
+    return  like 
 
-def deslikes():
+def Views(url):
+    #pego o id do video do youtube pela url
+    video_id = url.find("meta", itemprop="identifier")
+    vid = video_id["content"]
+
+
+    # pego a API
+    api_key = os.getenv("API_KEY")
+    
+    #contruo um objeto, utilizo o youtube e o v3, mesmos parametros do string_format luis, e a chave da API
+    youtube = build(
+        "youtube",
+        "v3",
+        developerKey=api_key
+    ) 
+
+    #crio o request para acessar os videos, na part de estatisticas e utilizando o id do video
+    request = youtube.videos().list(
+        part = "statistics",
+        id = vid 
+    )
+
+    #executo essa request
+    response = request.execute()
+
+    #retorno essa request
+    return int(response["items"][0]["statistics"]["viewCount"])
     ...
 
-def subtitle():
-    ...
+def ViewRatio(s,v):
+    ratio_v = (v/s)*100
 
-def monetized():
+    return "{:.2f}%".format(ratio_v) 
+
+def LikeRatio(v,l):
+    like_rat = (l/v)*100
+    return "{:.2f}%".format(like_rat)
     ...
     
 def data(name):
@@ -198,7 +224,7 @@ def data(name):
                 else:
                     index+=1
     except(KeyError):
-        return "id não encontrado"
+        return "Id not found"
             
 
 if __name__ == "__main__":    
