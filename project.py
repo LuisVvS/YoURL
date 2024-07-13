@@ -32,25 +32,26 @@ def main():
         #get the subscribers of a channel
         channel_ID = data(aut)
         subs = subscriber(channel_ID)
-        like = likes(aut)
+        like = likes(aut, channel_ID)
         if(isfamily(soup) == "true"):
             isf = "yes"
         else:
             isf = "no"
 
-    data_you = [
-        ["Name Of Channel", aut],
-        ["Title",ti], 
-        ["Date of the Video",dat], 
-        ["Description",des],
-        ["Is Family Frind? ",isf],
-        ["Genre",genre],
-        ["Subscribers",subs]
-        # ["Likes",like]
-            ]
+        data_you = [
+            ["Name Of Channel", aut],
+            ["Title",ti], 
+            ["Date of the Video",dat], 
+            ["Description",des],
+            ["Is Family Frind? ",isf],
+            ["Genre",genre],
+            ["Subscribers",subs]
+            # ["Likes",like]
+                ]
 
-    print(tabulate(data_you, headers=[Fore.GREEN + Style.BRIGHT + "About the Video" + Style.RESET_ALL, Fore.RED + Style.BRIGHT + "Values" + Style.RESET_ALL], tablefmt="heavy_grid"))
-    print(like) 
+        print(tabulate(data_you, headers=[Fore.GREEN + Style.BRIGHT + "About the Video" + Style.RESET_ALL, Fore.RED + Style.BRIGHT + "Values" + Style.RESET_ALL], tablefmt="heavy_grid"))
+        print(like)
+
 #supported links
 #https://www.youtube.com/watch?v=iQeBYPJWtak
 #http://youtu.be/cCnrX1w5luM
@@ -134,27 +135,43 @@ def subscriber(channel):
     subs = int(response["items"][0]["statistics"]["subscriberCount"])
     return  f"{subs:,}" 
 
-def likes(name):
-    string_format = f"https://www.googleapis.com/youtube/v3/search?&q={name.replace(" ", "%20")}&key={os.getenv("API_KEY")}"
-    age = requests.get(string_format)
-    data = age.json()
-    cha = data["items"][0]["id"]["channelId"]
-
+def likes(name, dat):
+    try:
+        #pego o request do http que eu pedi
+        string_format = f"https://www.googleapis.com/youtube/v3/search?&q={name.replace(" ", "%20")}&key={os.getenv("API_KEY")}"
+        age = requests.get(string_format)
+        data = age.json()
+        index = 0 
+        while(True):
+            #pego o Id do video para pegar os likes e deslikes
+            if data["items"][index]["id"]["kind"] == "youtube#video":
+                    vid =  data["items"][index]["id"]["videoId"]
+                    break
+            else:
+                index+=1 
+    except(KeyError):
+        None
+    #pego a API
     api_key = os.getenv("API_KEY")
-
+    
+    #contruo um objeto, utilizo o youtube e o v3, mesmos parametros do string_format luis, e a chave da API
     youtube = build(
         "youtube",
         "v3",
         developerKey=api_key
     ) 
 
-    request = youtube.channels().list(
+    #crio o request para acessar os videos, na part de estatisticas e utilizando o id do video
+    request = youtube.videos().list(
         part = "statistics",
-        id = cha 
+        id = vid 
     )
+
+    #executo essa request
     response = request.execute()
 
-    return response
+    #retorno essa request
+    return response["items"][0]
 
 def deslikes():
     ...
@@ -171,14 +188,23 @@ def data(name):
     age = requests.get(string_format)
     data = age.json()
     # busco no arquibo json o ID do canal
-    id_channel = data["items"]
-    for i in id_channel:
-            return i["id"]["channelId"]
+    try:
+        index = 0
+        while(True):
+            #verifico onde ficar o youtube#channel para pegar o id
+            #vou buscando pelo indice, caso não ache em um indice, vou para o proximo
+                if data["items"][index]["id"]["kind"] == "youtube#channel":
+                    return data["items"][index]["id"]["channelId"]
+                else:
+                    index+=1
+    except(KeyError):
+        return "id não encontrado"
+            
 
-if __name__=="__main__":
+if __name__ == "__main__":    
     main()
 
-# não consegui pegar o ID desse video https://www.youtube.com/watch?v=8gDZBfs9Yv4&t=2s
+#ir atras da quantidade de likes nesse video de youtube https://www.youtube.com/watch?v=8gDZBfs9Yv4&t=2s (nesse canal a quantidade essta errada, mas testei em um do saiko e apareceu a quantidanocanal dlonocanal do 
 #talvez implementar a quantidade de likes que o video tem
 #Implementar se o canal é verificado ou não
 
