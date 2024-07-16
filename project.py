@@ -13,49 +13,51 @@ load_dotenv()
 init()
 
 def main():
-    url = verify(input("Put the link here: ").strip())
-    if not url :
-        print("Invalid")
-    else:
-        page = requests.get(url)
-        html_content = page.content.decode('utf-8')
-        soup = BeautifulSoup(html_content, "html.parser")
-
-        
-
-        ti = title(soup)
-        # des = description(soup)
-        aut = author(soup)
-        dat = date(soup)
-        genre = gen(soup)
-
-        #get the subscribers of a channel
-        channel_ID = data(aut)
-        subs = subscriber(channel_ID)
-        like = likes(soup)
-        view = Views(soup)
-        vratio = ViewRatio(subs,view)
-        lratio = LikeRatio(view,like)
-        if(isfamily(soup) == "true"):
-            isf = "yes"
+    try:
+        url = verify(input("Put the link here: ").strip())
+        if not url :
+            print("Invalid")
         else:
-            isf = "no"
+            page = requests.get(url)
+            html_content = page.content.decode('utf-8')
+            soup = BeautifulSoup(html_content, "html.parser")
 
-        data_you = [
-            ["Name Of Channel", aut],
-            ["Title",ti], 
-            ["Date of the Video",dat], 
-            # ["Description",des],
-            ["Is Family Frind? ",isf],
-            ["Genre",genre],
-            ["Subscribers",f"{subs:,}"],
-            ["Likes",f"{like:,}"],
-            ["View Ratio", vratio],
-            ["Like Ratio", lratio]
-                ]
+            
 
-        print(tabulate(data_you, headers=[Fore.GREEN + Style.BRIGHT + "About the Video" + Style.RESET_ALL, Fore.RED + Style.BRIGHT + "Values" + Style.RESET_ALL], tablefmt="heavy_grid"))
+            ti = title(soup)
+            # des = description(soup)
+            aut = author(soup)
+            dat = date(soup)
+            genre = gen(soup)
 
+            #get the subscribers of a channel
+            channel_ID = data(aut)
+            subs = subscriber(channel_ID)
+            like = likes(soup)
+            view = Views(soup)
+            vratio = ViewRatio(subs,view)
+            lratio = LikeRatio(view,like)
+            if(isfamily(soup) == "true"):
+                isf = "yes"
+            else:
+                isf = "no"
+
+            data_you = [
+                ["Name Of Channel", aut],
+                ["Title",ti], 
+                ["Date of the Video",dat], 
+                # ["Description",des],
+                ["Is Family Frind? ",isf],
+                ["Genre",genre],
+                ["Subscribers",f"{subs:,}"],
+                ["Likes",f"{like:,}"],
+                ["View Ratio", vratio],
+                ["Like Ratio", lratio]
+                    ]
+
+            print(tabulate(data_you, headers=[Fore.GREEN + Style.BRIGHT + "About the Video" + Style.RESET_ALL, Fore.RED + Style.BRIGHT + "Values" + Style.RESET_ALL], tablefmt="heavy_grid"))
+    except(KeyError, TypeError, ValueError, IndexError):
+       print("Maybe this is not a valid youtube video, please virify again") 
 #supported links
 #https://www.youtube.com/watch?v=iQeBYPJWtak
 #http://youtu.be/cCnrX1w5luM
@@ -81,6 +83,7 @@ def main():
 #youtube/cCnrX1w5luM
 #https://y.youtube.com/watch?v=DFYRQ_zQ-gk
 #https://ww.youtube.com/watch?v=RTUffsKQFVw
+#https://www.youtubee.com/watch?v=dQw4w9WgXcQ
 
 
 def verify(s):
@@ -91,121 +94,154 @@ def verify(s):
         return False 
 
 def title(t):
-    title_tag = t.find("meta", itemprop="name")
-    return title_tag["content"]
+    try:
+        title_tag = t.find("meta", itemprop="name")
+        return title_tag["content"]
+    except(TypeError, ValueError, IndexError):
+        return "tittle not found"
 
 def author(a):
-    container = a.find("div")
-    author_tag = container.find("link", itemprop="name")
-    return author_tag["content"]
+    try:
+        container = a.find("div")
+        author_tag = container.find("link", itemprop="name")
+        return author_tag["content"]
+    except(TypeError, ValueError, IndexError):
+        return "author not found"
 
 # def description(d):
 #     des_tag = d.find("meta", itemprop="description")
 #     return des_tag["content"]
 
 def date(dat):
-    date_tag = dat.find("meta", itemprop="datePublished")
-    date = date_tag["content"].split("T")
-    return date[0]
+    try:
+
+        date_tag = dat.find("meta", itemprop="datePublished")
+        date = date_tag["content"].split("T")
+        return date[0]
+    except(TypeError,ValueError, IndexError):
+        return "date not found"
 
 def isfamily(f):
-    tag_family = f.find("meta", itemprop="isFamilyFriendly")
-    return tag_family["content"]
+    try:
+
+        tag_family = f.find("meta", itemprop="isFamilyFriendly")
+        return tag_family["content"]
+    except(TypeError, ValueError, IndexError):
+        return "tag not found"
 
 def gen(g):
     #pra ver como é o html geral, muito util para proximas implementações
     # teste = g.find("div")
     # print(teste.prettify())
-
-    genre_tag = g.find("meta", itemprop="genre")
-    return genre_tag["content"]
+    try:
+        genre_tag = g.find("meta", itemprop="genre")
+        return genre_tag["content"]
+    except(TypeError, ValueError, IndexError):
+        return "genre not found"
 
 def subscriber(channel):
-    #pego a api_KEY
-    api_key = os.getenv("API_KEY")
-    
-    youtube = build(
-        "youtube",
-        "v3",
-        developerKey=api_key
-    )    
-    #busco as estatisticas do canal
-    request = youtube.channels().list(
-        part = "statistics",
-        id = channel 
-    )
-    response = request.execute()
-    #vou atras do numero de inscritos 
-    subs = int(response["items"][0]["statistics"]["subscriberCount"])
-    return subs 
+    try:
+        #pego a api_KEY
+        api_key = os.getenv("API_KEY")
+        
+        youtube = build(
+            "youtube",
+            "v3",
+            developerKey=api_key
+        )    
+        #busco as estatisticas do canal
+        request = youtube.channels().list(
+            part = "statistics",
+            id = channel 
+        )
+        response = request.execute()
+        #vou atras do numero de inscritos 
+        subs = int(response["items"][0]["statistics"]["subscriberCount"])
+        return subs 
+    except(KeyError, IndexError, ValueError):
+        return "subscriberCount not found"
 
 def likes(url):
+    try:
 
-    #pego o id do video do youtube pela url
-    video_id = url.find("meta", itemprop="identifier")
-    vid = video_id["content"]
+        #pego o id do video do youtube pela url
+        video_id = url.find("meta", itemprop="identifier")
+        vid = video_id["content"]
 
 
-    # pego a API
-    api_key = os.getenv("API_KEY")
-    
-    #contruo um objeto, utilizo o youtube e o v3, mesmos parametros do string_format luis, e a chave da API
-    youtube = build(
-        "youtube",
-        "v3",
-        developerKey=api_key
-    ) 
+        # pego a API
+        api_key = os.getenv("API_KEY")
+        
+        #contruo um objeto, utilizo o youtube e o v3, mesmos parametros do string_format luis, e a chave da API
+        youtube = build(
+            "youtube",
+            "v3",
+            developerKey=api_key
+        ) 
 
-    #crio o request para acessar os videos, na part de estatisticas e utilizando o id do video
-    request = youtube.videos().list(
-        part = "statistics",
-        id = vid 
-    )
+        #crio o request para acessar os videos, na part de estatisticas e utilizando o id do video
+        request = youtube.videos().list(
+            part = "statistics",
+            id = vid 
+        )
 
-    #executo essa request
-    response = request.execute()
+        #executo essa request
+        response = request.execute()
 
-    #retorno essa request
-    like = int(response["items"][0]["statistics"]["likeCount"])
-    return  like 
+        #retorno essa request
+        like = int(response["items"][0]["statistics"]["likeCount"])
+        return like 
+    except(TypeError, IndexError, KeyError, ValueError):
+        return "likes not found"
 
 def Views(url):
-    #pego o id do video do youtube pela url
-    video_id = url.find("meta", itemprop="identifier")
-    vid = video_id["content"]
+    try:
+
+        #pego o id do video do youtube pela url
+        video_id = url.find("meta", itemprop="identifier")
+        vid = video_id["content"]
 
 
-    # pego a API
-    api_key = os.getenv("API_KEY")
-    
-    #contruo um objeto, utilizo o youtube e o v3, mesmos parametros do string_format luis, e a chave da API
-    youtube = build(
-        "youtube",
-        "v3",
-        developerKey=api_key
-    ) 
+        # pego a API
+        api_key = os.getenv("API_KEY")
+        
+        #contruo um objeto, utilizo o youtube e o v3, mesmos parametros do string_format luis, e a chave da API
+        youtube = build(
+            "youtube",
+            "v3",
+            developerKey=api_key
+        ) 
 
-    #crio o request para acessar os videos, na part de estatisticas e utilizando o id do video
-    request = youtube.videos().list(
-        part = "statistics",
-        id = vid 
-    )
+        #crio o request para acessar os videos, na part de estatisticas e utilizando o id do video
+        request = youtube.videos().list(
+            part = "statistics",
+            id = vid 
+        )
 
-    #executo essa request
-    response = request.execute()
+        #executo essa request
+        response = request.execute()
 
-    #retorno essa request
-    return int(response["items"][0]["statistics"]["viewCount"])
+        #retorno essa request
+        return int(response["items"][0]["statistics"]["viewCount"])
+    except(KeyError, TypeError, IndexError, ValueError):
+        return "View count not found"
     ...
 
 def ViewRatio(s,v):
-    ratio_v = (v/s)*100
+    try:
+        ratio_v = (v/s)*100
 
-    return "{:.2f}%".format(ratio_v) 
+        return "{:.2f}%".format(ratio_v) 
+    except(KeyError, TypeError, ValueError):
+        return "Not possible to calculate ViewRatio"
 
 def LikeRatio(v,l):
-    like_rat = (l/v)*100
-    return "{:.2f}%".format(like_rat)
+    try:
+
+        like_rat = (l/v)*100
+        return "{:.2f}%".format(like_rat)
+    except(TypeError, ValueError):
+        return "Like Ratio not found"
     ...
     
 def data(name):
@@ -223,16 +259,14 @@ def data(name):
                     return data["items"][index]["id"]["channelId"]
                 else:
                     index+=1
-    except(KeyError):
+    except(KeyError, IndexError, ValueError):
         return "Id not found"
             
 
 if __name__ == "__main__":    
     main()
 
-#ir atras da quantidade de likes nesse video de youtube https://www.youtube.com/watch?v=8gDZBfs9Yv4&t=2s (nesse canal a quantidade essta errada, mas testei em um do saiko e apareceu a quantidanocanal dlonocanal do 
-#talvez implementar a quantidade de likes que o video tem
-#Implementar se o canal é verificado ou não
+#ir atras da quantidade de likes nesse video de youtube 
 
 
 #começar a implementar os teste{
