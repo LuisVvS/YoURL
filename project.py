@@ -238,7 +238,6 @@ def ViewRatio(s,v):
 
 def LikeRatio(v,l):
     try:
-
         like_rat = (l/v)*100
         return "{:.2f}%".format(like_rat)
     except(TypeError, ValueError):

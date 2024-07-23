@@ -1,9 +1,163 @@
 import unittest
+from bs4 import BeautifulSoup
 from unittest.mock import Mock, patch
 import requests
-from project import likes, get_request1, data, Views, subscriber
+from project import likes, get_request1, data, Views, subscriber,LikeRatio,ViewRatio,verify,title,author,date,isfamily,gen
 import os
 
+def test_Like_Ratio():
+    assert LikeRatio(60,100) == "166.67%" 
+    assert LikeRatio("luis", 60) == "Like Ratio not found"
+    assert LikeRatio("asjd", "lskjda") == "Like Ratio not found"
+    assert LikeRatio(30,"2931") == "Like Ratio not found"
+    assert LikeRatio("40","20") == "Like Ratio not found"
+    assert LikeRatio(5000,20000) == "400.00%"
+
+def test_View_Ratio():
+    assert ViewRatio(5000000,200000) ==  "4.00%"
+    assert ViewRatio(5000, 1000) == "20.00%" 
+    assert ViewRatio(500,200) == "40.00%"  
+    assert ViewRatio("2000", "299") == "Not possible to calculate ViewRatio" 
+    assert ViewRatio(2000000,"Luis") == "Not possible to calculate ViewRatio"
+    assert ViewRatio(1.4,"400") == "Not possible to calculate ViewRatio"
+    assert ViewRatio("200",20) == "Not possible to calculate ViewRatio"
+    assert ViewRatio(1.400,1.4999999) == "107.14%"
+    
+
+def test_verify():
+    assert verify("https://www.youtube.com/watch?v=9WCE0s3hvhQ") == "https://www.youtube.com/watch?v=9WCE0s3hvhQ" 
+    assert verify("https://y.youtube.com/watch?v=DFYRQ_zQ-gk") == False
+    assert verify("https://ww.youtube.com/watch?v=RTUffsKQFVw") == False 
+    assert verify("https://www.youtubee.com/watch?v=dQw4w9WgXcQ") == False
+    assert verify("https://www.youtube.com/watch?v=") == "https://www.youtube.com/watch?v=" 
+    assert verify("https://www.youtube.com/watch?v=8gDZBfs9Yv4&t=2s") == "https://www.youtube.com/watch?v=8gDZBfs9Yv4&t=2s"
+    assert verify("https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=PL9tY0BWXOZFtAk_vlObsc1kYM3Imi2F98&index=3") == "https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=PL9tY0BWXOZFtAk_vlObsc1kYM3Imi2F98&index=3"
+    assert verify("youtu.be/cCnrX1w5luM") == "youtu.be/cCnrX1w5luM"
+    assert verify("https://www.youtube.com/v/DFYRQ_zQ-gk?fs=1&hl=en_US") == "https://www.youtube.com/v/DFYRQ_zQ-gk?fs=1&hl=en_US"
+    assert verify("https://www.youtube-nocookie.com/embed/DFYRQ_zQ-gk?autoplay=1") == "https://www.youtube-nocookie.com/embed/DFYRQ_zQ-gk?autoplay=1"
+
+
+def test_tittle():
+    page = requests.get("https://www.youtube.com/watch?v=8gDZBfs9Yv4&t=2s")
+    html_content = page.content.decode("utf-8")
+    soup = BeautifulSoup(html_content, "html.parser")
+    assert title(soup) == "How to get the number of Views, Likes, or Comments on a Youtube Video using the Youtube API Tutorial"
+    
+    page2 = requests.get("https://oxylabs.io/blog/beautiful-soup-parsing-tutorial")
+    html_content2 = page2.content.decode("utf-8")
+    soup2 = BeautifulSoup(html_content2,"html.parser")
+    assert title(soup2) == "tittle not found"
+
+    page3 = requests.get("https://www.youtube.com/watch?v=")
+    html_content3 = page3.content.decode("utf-8")
+    soup3 = BeautifulSoup(html_content3,"html.parser")
+    assert title(soup3) == "tittle not found"
+ 
+    page4 = requests.get("https://youtube.com/watch?v=92348324skd")
+    html_content4 = page4.content.decode("utf-8")
+    soup4 = BeautifulSoup(html_content4,"html.parser")
+    assert title(soup4) == "tittle not found"
+
+def test_author():
+    page = requests.get("https://www.youtube.com/watch?v=8gDZBfs9Yv4&t=2s")
+    html_content = page.content.decode("utf-8")
+    soup = BeautifulSoup(html_content, "html.parser")
+    assert author(soup) == "Automate with Jonathan"
+    
+    page2 = requests.get("https://oxylabs.io/blog/beautiful-soup-parsing-tutorial")
+    html_content2 = page2.content.decode("utf-8")
+    soup2 = BeautifulSoup(html_content2,"html.parser")
+    assert author(soup2) == "author not found"
+
+    page3 = requests.get("https://www.youtube.com/watch?v=")
+    html_content3 = page3.content.decode("utf-8")
+    soup3 = BeautifulSoup(html_content3,"html.parser")
+    assert author(soup3) == "author not found"
+ 
+    page4 = requests.get("https://youtube.com/watch?v=92348324skd")
+    html_content4 = page4.content.decode("utf-8")
+    soup4 = BeautifulSoup(html_content4,"html.parser")
+    assert author(soup4) == "author not found"
+
+
+def test_date():
+    page = requests.get("https://www.youtube.com/watch?v=8gDZBfs9Yv4&t=2s")
+    html_content = page.content.decode("utf-8")
+    soup = BeautifulSoup(html_content, "html.parser")
+    assert date(soup) == "2022-09-28"
+    
+    page2 = requests.get("https://oxylabs.io/blog/beautiful-soup-parsing-tutorial")
+    html_content2 = page2.content.decode("utf-8")
+    soup2 = BeautifulSoup(html_content2,"html.parser")
+    assert date(soup2) == "date not found"
+
+    page3 = requests.get("https://www.youtube.com/watch?v=")
+    html_content3 = page3.content.decode("utf-8")
+    soup3 = BeautifulSoup(html_content3,"html.parser")
+    assert date(soup3) == "date not found"
+ 
+    page4 = requests.get("https://youtube.com/watch?v=92348324skd")
+    html_content4 = page4.content.decode("utf-8")
+    soup4 = BeautifulSoup(html_content4,"html.parser")
+    assert date(soup4) == "date not found"
+
+    page5 = requests.get("https://www.youtube.com/watch?v=KcITJ97TK80")
+    html_content5 = page5.content.decode("utf-8")
+    soup5 = BeautifulSoup(html_content5,"html.parser")
+    assert date(soup5) == "2022-11-02"
+
+
+def test_isFamily():
+    page = requests.get("https://www.youtube.com/watch?v=8gDZBfs9Yv4&t=2s")
+    html_content = page.content.decode("utf-8")
+    soup = BeautifulSoup(html_content, "html.parser")
+    assert isfamily(soup) == "true"
+    
+    page2 = requests.get("https://oxylabs.io/blog/beautiful-soup-parsing-tutorial")
+    html_content2 = page2.content.decode("utf-8")
+    soup2 = BeautifulSoup(html_content2,"html.parser")
+    assert isfamily(soup2) == "tag not found"
+
+    page3 = requests.get("https://www.youtube.com/watch?v=")
+    html_content3 = page3.content.decode("utf-8")
+    soup3 = BeautifulSoup(html_content3,"html.parser")
+    assert isfamily(soup3) == "tag not found"
+ 
+    page4 = requests.get("https://youtube.com/watch?v=92348324skd")
+    html_content4 = page4.content.decode("utf-8")
+    soup4 = BeautifulSoup(html_content4,"html.parser")
+    assert isfamily(soup4) == "tag not found"
+
+    page5 = requests.get("https://www.youtube.com/watch?v=KcITJ97TK80")
+    html_content5 = page5.content.decode("utf-8")
+    soup5 = BeautifulSoup(html_content5,"html.parser")
+    assert isfamily(soup5) == "true"
+
+def test_gen():
+    page = requests.get("https://www.youtube.com/watch?v=8gDZBfs9Yv4&t=2s")
+    html_content = page.content.decode("utf-8")
+    soup = BeautifulSoup(html_content, "html.parser")
+    assert gen(soup) == "Science & Technology"
+    
+    page2 = requests.get("https://oxylabs.io/blog/beautiful-soup-parsing-tutorial")
+    html_content2 = page2.content.decode("utf-8")
+    soup2 = BeautifulSoup(html_content2,"html.parser")
+    assert gen(soup2) == "genre not found"
+
+    page3 = requests.get("https://www.youtube.com/watch?v=")
+    html_content3 = page3.content.decode("utf-8")
+    soup3 = BeautifulSoup(html_content3,"html.parser")
+    assert gen(soup3) == "genre not found"
+ 
+    page4 = requests.get("https://youtube.com/watch?v=92348324skd")
+    html_content4 = page4.content.decode("utf-8")
+    soup4 = BeautifulSoup(html_content4,"html.parser")
+    assert gen(soup4) == "genre not found"
+
+    page5 = requests.get("https://www.youtube.com/watch?v=KcITJ97TK80")
+    html_content5 = page5.content.decode("utf-8")
+    soup5 = BeautifulSoup(html_content5,"html.parser")
+    assert gen(soup5) == "Sports"
 
 @patch("project.requests.get")
 def test_data(mock_get_data):
