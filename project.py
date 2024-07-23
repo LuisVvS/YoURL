@@ -8,6 +8,8 @@ import json
 import os
 from dotenv import load_dotenv
 
+
+
 load_dotenv()
 
 init()
@@ -29,12 +31,13 @@ def main():
             aut = author(soup)
             dat = date(soup)
             genre = gen(soup)
+            video = video_id(soup)
 
             #get the subscribers of a channel
             channel_ID = data(aut)
             subs = subscriber(channel_ID)
-            like = likes(soup)
-            view = Views(soup)
+            like = likes(video)
+            view = Views(video)
             vratio = ViewRatio(subs,view)
             lratio = LikeRatio(view,like)
             if(isfamily(soup) == "true"):
@@ -161,18 +164,20 @@ def subscriber(channel):
     except(KeyError, IndexError, ValueError):
         return "subscriberCount not found"
 
-def likes(url):
+def video_id(url):
+    #pego o id do video do youtube pela url
+    video_id = url.find("meta", itemprop="identifier")
+    vid = video_id["content"]
+    return vid
+
+
+def likes(vid):
     try:
-
-        #pego o id do video do youtube pela url
-        video_id = url.find("meta", itemprop="identifier")
-        vid = video_id["content"]
-
 
         # pego a API
         api_key = os.getenv("API_KEY")
         
-        #contruo um objeto, utilizo o youtube e o v3, mesmos parametros do string_format luis, e a chave da API
+        #contruo um objeto, utilizo o youtube e o v3, mesmos parametros do string_format, e a chave da API
         youtube = build(
             "youtube",
             "v3",
@@ -191,16 +196,12 @@ def likes(url):
         #retorno essa request
         like = int(response["items"][0]["statistics"]["likeCount"])
         return like 
+
     except(TypeError, IndexError, KeyError, ValueError):
         return "likes not found"
 
-def Views(url):
+def Views(vid):
     try:
-
-        #pego o id do video do youtube pela url
-        video_id = url.find("meta", itemprop="identifier")
-        vid = video_id["content"]
-
 
         # pego a API
         api_key = os.getenv("API_KEY")
@@ -223,9 +224,9 @@ def Views(url):
 
         #retorno essa request
         return int(response["items"][0]["statistics"]["viewCount"])
+
     except(KeyError, TypeError, IndexError, ValueError):
         return "View count not found"
-    ...
 
 def ViewRatio(s,v):
     try:
@@ -242,7 +243,6 @@ def LikeRatio(v,l):
         return "{:.2f}%".format(like_rat)
     except(TypeError, ValueError):
         return "Like Ratio not found"
-    ...
     
 def data(name):
     # pesquiso pelo google api com o nome do canal
@@ -261,7 +261,16 @@ def data(name):
                     index+=1
     except(KeyError, IndexError, ValueError):
         return "Id not found"
-            
+
+
+def get_request1():
+    name = "Cellbit"
+    fs = f"https://www.googleapis.com/youtube/v3/search?q={name}&key={os.getenv("API_KEY")}"
+    response = requests.get(fs)
+    if response.ok:
+        return response
+    else:
+        return None
 
 if __name__ == "__main__":    
     main()
@@ -273,4 +282,4 @@ if __name__ == "__main__":
 #Estudar como fazer testes melhores
 #experiencia com usuario fazer outras pessoas testarem
 #pegas os try e except
-#    }
+#}
