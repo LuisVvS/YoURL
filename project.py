@@ -15,7 +15,7 @@ load_dotenv()
 init()
 
 def main():
-    # try:
+    try:
         url = verify(input("Put the link here: ").strip())
         if not url :
             print("Invalid")
@@ -37,7 +37,7 @@ def main():
             channel_ID = data(aut)
             subs = subscriber(channel_ID)
             like = likes(video)
-            view = Views(video)
+            view = views(video)
             vratio = viewRatio(subs,view)
             lratio = likeRatio(view,like)
             if(isfamily(soup) == "true"):
@@ -58,9 +58,8 @@ def main():
                     ]
 
             print(tabulate(data_you, headers=[Fore.GREEN + Style.BRIGHT + "About the Video" + Style.RESET_ALL, Fore.RED + Style.BRIGHT + "Values" + Style.RESET_ALL], tablefmt="heavy_grid"))
-    # except(KeyError, TypeError, ValueError, IndexError):
-    #    print("Maybe this is not a valid youtube video, please virify again") 
-
+    except(KeyError, TypeError, ValueError, IndexError):
+       print("Maybe this is not a valid youtube video, please virify again") 
 #supported links
 #https://www.youtube.com/watch?v=iQeBYPJWtak
 #http://youtu.be/cCnrX1w5luM
@@ -166,11 +165,12 @@ def subscriber(channel):
 
 def video_id(url):
     try:
+
         #pego o id do video do youtube pela url
         video_id = url.find("meta", itemprop="identifier")
         vid = video_id["content"]
         return vid
-    except (KeyError, TypeError, IndexError):
+    except(KeyError, TypeError, IndexError):
         return "video id not found"
 
 
@@ -203,7 +203,7 @@ def likes(vid):
     except(TypeError, IndexError, KeyError, ValueError):
         return "likes not found"
 
-def Views(vid):
+def views(vid):
     try:
 
         # pego a API
@@ -276,3 +276,12 @@ def get_request1():
 
 if __name__ == "__main__":    
     main()
+
+#ir atras da quantidade de likes nesse video de youtube 
+
+
+#começar a implementar os teste{
+#Estudar como fazer testes melhores
+#experiencia com usuario fazer outras pessoas testarem
+#pegas os try e except
+#}
