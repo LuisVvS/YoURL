@@ -165,7 +165,6 @@ def subscriber(channel):
 
 def video_id(url):
     try:
-
         #pego o id do video do youtube pela url
         video_id = url.find("meta", itemprop="identifier")
         vid = video_id["content"]
@@ -276,12 +275,3 @@ def get_request1():
 
 if __name__ == "__main__":    
     main()
-
-#ir atras da quantidade de likes nesse video de youtube 
-
-
-#começar a implementar os teste{
-#Estudar como fazer testes melhores
-#experiencia com usuario fazer outras pessoas testarem
-#pegas os try e except
-#}
