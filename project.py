@@ -15,7 +15,7 @@ load_dotenv()
 init()
 
 def main():
-    try:
+    # try:
         url = verify(input("Put the link here: ").strip())
         if not url :
             print("Invalid")
@@ -38,8 +38,8 @@ def main():
             subs = subscriber(channel_ID)
             like = likes(video)
             view = Views(video)
-            vratio = ViewRatio(subs,view)
-            lratio = LikeRatio(view,like)
+            vratio = viewRatio(subs,view)
+            lratio = likeRatio(view,like)
             if(isfamily(soup) == "true"):
                 isf = "yes"
             else:
@@ -49,18 +49,18 @@ def main():
                 ["Name Of Channel", aut],
                 ["Title",ti], 
                 ["Date of the Video",dat], 
-                # ["Description",des],
                 ["Is Family Frind? ",isf],
                 ["Genre",genre],
-                ["Subscribers",f"{subs:,}"],
-                ["Likes",f"{like:,}"],
+                ["Subscribers",subs],
+                ["Likes",like],
                 ["View Ratio", vratio],
                 ["Like Ratio", lratio]
                     ]
 
             print(tabulate(data_you, headers=[Fore.GREEN + Style.BRIGHT + "About the Video" + Style.RESET_ALL, Fore.RED + Style.BRIGHT + "Values" + Style.RESET_ALL], tablefmt="heavy_grid"))
-    except(KeyError, TypeError, ValueError, IndexError):
-       print("Maybe this is not a valid youtube video, please virify again") 
+    # except(KeyError, TypeError, ValueError, IndexError):
+    #    print("Maybe this is not a valid youtube video, please virify again") 
+
 #supported links
 #https://www.youtube.com/watch?v=iQeBYPJWtak
 #http://youtu.be/cCnrX1w5luM
@@ -165,10 +165,13 @@ def subscriber(channel):
         return "subscriberCount not found"
 
 def video_id(url):
-    #pego o id do video do youtube pela url
-    video_id = url.find("meta", itemprop="identifier")
-    vid = video_id["content"]
-    return vid
+    try:
+        #pego o id do video do youtube pela url
+        video_id = url.find("meta", itemprop="identifier")
+        vid = video_id["content"]
+        return vid
+    except (KeyError, TypeError, IndexError):
+        return "video id not found"
 
 
 def likes(vid):
@@ -228,7 +231,7 @@ def Views(vid):
     except(KeyError, TypeError, IndexError, ValueError):
         return "View count not found"
 
-def ViewRatio(s,v):
+def viewRatio(s,v):
     try:
         ratio_v = (v/s)*100
 
@@ -236,7 +239,7 @@ def ViewRatio(s,v):
     except(KeyError, TypeError, ValueError):
         return "Not possible to calculate ViewRatio"
 
-def LikeRatio(v,l):
+def likeRatio(v,l):
     try:
         like_rat = (l/v)*100
         return "{:.2f}%".format(like_rat)
@@ -273,12 +276,3 @@ def get_request1():
 
 if __name__ == "__main__":    
     main()
-
-#ir atras da quantidade de likes nesse video de youtube 
-
-
-#começar a implementar os teste{
-#Estudar como fazer testes melhores
-#experiencia com usuario fazer outras pessoas testarem
-#pegas os try e except
-#}
