@@ -5,7 +5,7 @@
 
 The program consists of a `main` function and 14 other functions: `verify`, `title`, `author`, `date`, `isfamily`, `gen`, `subscriber`, `video_id`, `likes`, `views`, `viewRatio`, `likeRatio`, `data`, and `get_request1`.
 
-The verify function uses regex to validate a YouTube URL. Other functions like `title`, `author`, `date`, `isfamily`, and `gen` use the `Beautiful Soup` library for web scraping the video. The other functions use the YouTube Data API to retrieve information about the video.
+The verify function uses `regex` to validate a YouTube URL. Other functions like `title`, `author`, `date`, `isfamily`, and `gen` use the `Beautiful Soup` library for web scraping the video. The other functions use the YouTube Data API to retrieve information about the video.
 
 ### **Project Requirements:**
 - This project must be implemented in Python.
