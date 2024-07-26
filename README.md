@@ -8,10 +8,13 @@ The program consists of a main function and 14 other functions: verify, title, a
 The verify function uses regex to validate a YouTube URL. Other functions like title, author, date, isfamily, and gen use the Beautiful Soup library for web scraping the video. The other functions use the YouTube Data API to retrieve information about the video.
 
 ### **Project Requirements:**
-- 1 - This Project must be implemented in Python.
-- 2 - This Porject should have one main function and at least 14 functions.
-- 3 - The test functions of the Project must've be in file called test_project that has another 13 functions that must be executed with pytest, all the functions sould have a **test_** in the begin name of the function.
-- 4 - A file callend **requirements.txt** that has all the requirements that you'll need to run this project correctly, this file must be in the root together with **project.py** and **test_project.py**
+- This project must be implemented in Python.
+- This project should have one main function and at least 14 other functions.
+- The test functions of the project must be in a file called test_project.py that has another 13 functions which must be executed with pytest. All the functions should have a test_ prefix in their names.
+- A file called requirements.txt should list all the requirements needed to run this project correctly. This file must be in the root directory together with project.py and test_project.py.
+
+### **Usage:**
+- Clone the repository: 
 
   
   
