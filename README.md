@@ -12,7 +12,7 @@ The verify function uses `regex` to validate a YouTube URL. Other functions like
 - This project should have one main function and at least 14 other functions.
 - The test functions of the project must be in a file called test_project.py that has another 13 functions which must be executed with pytest. All the functions should have a `test_` prefix in their names.
 - A file called requirements.txt should list all the requirements needed to run this project correctly. This file must be in the root directory together with `project.py` and `test_project.py`.
-
+- This project uses an external API key. To set it up, rename the file `.env_template` to `.env` and add your API key to it.
 ### **Usage:**
 1. Clone the repository: `git clone https://github.com/LuisVvS/YoURL.git`
 2. Install the required deoendencies with pip: `pip install -r requirements.txt`
