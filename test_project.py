@@ -1,9 +1,7 @@
-import unittest
 from bs4 import BeautifulSoup
 from unittest.mock import Mock, patch
 import requests
-from project import likes, get_request1, data, Views, subscriber,likeRatio,viewRatio,verify,title,author,date,isfamily,gen
-import os
+from project import likes, get_request1, data, views, subscriber,likeRatio,viewRatio,verify,title,author,date,isfamily,gen
 
 def test_Like_Ratio():
     assert likeRatio(60,100) == "166.67%" 
@@ -302,7 +300,7 @@ def test_Views(mock_view):
     mock_youtube.videos.return_value = mock_videos 
     mock_view.return_value = mock_youtube 
 
-    vv = Views("QlHNfcb1f2E")
+    vv = views("QlHNfcb1f2E")
     expected_views = 12345
     assert(vv) == expected_views 
 
